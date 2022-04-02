@@ -9,23 +9,70 @@ paths:
       summary: Create a new user
       tags:
       - Users
-      security:
-      - bearerAuth:
-        - users:owner
-      description: Create User. You must have an API token with the `admin`
-        scope in order to be able to do this.
+      description: Create a user. No token is necessary.
       parameters: []
       responses:
         '200':
           description: success
-          content:
-            application/json:
-              example:
-                id: b708fbc7-31e3-48e4-9884-8a439d38bcea
-                name: test
-                email: new@weather-alert.com
         '400':
-          description: Incorrect data provided (incorrent email or missing params)
+          description: Incorrect data provided (not an email or missing parameters)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Liam
+                email:
+                  type: string
+                  example: liam@weather-alert.com
+              required:
+              - name,
+              - email
+  "/users/{id}":
+    get:
+      summary: Get User Info
+      tags:
+      - Users
+      security:
+      - bearerAuth:
+        - users:owner
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      description: Get User's info. Must have `users:owner` scope.
+      responses:
+        '200':
+          description: success
+        '403':
+          description: Incorrect user id provided
+        '401':
+          description: Invalid Token
+    put:
+      summary: Update User info
+      tags:
+      - Organizations
+      security:
+      - bearerAuth:
+        - users:owner
+      description: Update Users info. You must have an API token with the `users:owner`
+        scope in order to use this.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '403':
+          description: Access Denied
         '401':
           description: Invalid Token
       requestBody:
@@ -39,231 +86,12 @@ paths:
                   example: Liam
                 email:
                   type: string
-                  example: product@weather-alert.com
-              required:
-              - name
-              - email
-  "/users/{id}":
-    delete:
-      summary: Delete an user
-      tags:
-      - Users
-      security:
-      - bearerAuth:
-        - users:owner
-      description: Delete Users. You must have an API token with the `users:owner`
-        scope in order to be able to do this.
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: success
-          content:
-            application/json:
-              example:
-                message: success
-        '401':
-          description: Invalid Token
-    get:
-      summary: Get User info
-      tags:
-      - Users
-      security:
-      - bearerAuth:
-        - users:owner
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      description: Get User's info. You must have an API token with the `users:owner`
-        scope in order to access data from the User.
-      responses:
-        '200':
-          description: success
-          content:
-            application/json:
-              example:
-                id: 2f2c35d5-6b33-49cc-8dde-8b17bf973613
-                name: Liam
-                email: product@weather-alert.com
-        '403':
-          description: Incorrect organization id provided
-        '401':
-          description: Invalid Token
-    put:
-      summary: Update User info
-      tags:
-      - Users
-      security:
-      - bearerAuth:
-        - users:owner
-      description: Update User's info. You must have an API token with the
-        `users:owner` scope in order to use this.
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: success
-          content:
-            application/json:
-              example:
-                id: 884a8b1e-f9ec-405b-97ac-8f244da27da7
-                name: Liam B
-                email: support@weather-alert.com
-        '403':
-          description: Access Denied
-        '401':
-          description: Invalid Token
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: Liam B
-                email:
-                  type: string
-                  example: support@weather-alert.com
-  "/users/{id}/tokens/":
-    post:
-      summary: Create a new token with the specified scopes
-      tags:
-      - API Tokens
-      security:
-      - bearerAuth:
-        - tokens:write
-        - tokens:admin
-      description: Create API tokens. You must have an API token with the `tokens:write`
-        scope in order to be able to do this for your own organization.
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: success
-          content:
-            application/json:
-              example:
-                id: 146ec884-3540-4d56-994b-e6f9afc1b4d7
-                value: rWfBCQtc9wHaCiyzG3eGhgA2gC3SHgVpmS75
-                label:
-                scopes:
-                - tokens:write
-                user_id: 6ea3e8de-b26b-4d9f-9a60-295f2aace130
-                created_at: '2021-03-31T06:20:36.896Z'
-                updated_at: '2021-03-31T06:20:36.896Z'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                scopes:
-                  type: array
-                  items:
-                    type: string
-                  example:
-                  - tokens:write
-              required:
-              - scopes
-  "/users/{id}/tokens/{token_id}":
-    delete:
-      summary: Revoke a token
-      security:
-      - bearerAuth:
-        - tokens:write
-        - tokens:admin
-      tags:
-      - API Tokens
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: token_id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: success
-          content:
-            application/json:
-              example:
-                message: success
-        '404':
-          description: token not found
-    put:
-      summary: Update Token Scopes
-      security:
-      - bearerAuth:
-        - tokens:write
-        - tokens:admin
-      tags:
-      - API Tokens
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-      - name: token_id
-        in: path
-        required: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: success
-          content:
-            application/json:
-              example:
-                scopes:
-                - tokens:read
-                id: bf99fbe6-3be6-4870-bd20-0e9517d964a6
-                value: McjNjYAfDiDQmnEdiurSNTC94YrUDHMz6Qoo
-                label:
-                user_id: ea922635-958d-4595-81ac-63332ce6659a
-                created_at: '2021-03-31T06:20:36.930Z'
-                updated_at: '2021-03-31T06:20:36.940Z'
-        '404':
-          description: token not found
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                scopes:
-                  type: array
-                  items:
-                    type: string
-                  example:
-                  - tokens:write
-              required:
-              - scopes
+                  example: liam@weather-alert.com
 servers:
-- url: http://{defaultHost}
+- url: https://{defaultHost}
   variables:
     defaultHost:
-      default: localhost:3000
+      default: www.example.com
 components:
   securitySchemes:
     bearerAuth:

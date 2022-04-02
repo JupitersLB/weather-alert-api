@@ -1,0 +1,2 @@
+class WeatherAlertError < StandardError
+end
