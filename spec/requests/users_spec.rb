@@ -1,5 +1,4 @@
 require 'swagger_helper'
-require 'byebug'
 
 describe 'User API', type: :request do
   let(:current_token) { Token.create(scopes: %w[tokens:write users:owners])}
@@ -42,7 +41,7 @@ describe 'User API', type: :request do
         end
       end
 
-      response '400', 'Incorrect data provided (Incorrent email or missing parameters)' do
+      response '400', 'Incorrect data provided (Incorrect email or missing parameters)' do
         let(:user) { { name: 'liam1', email: 'jlb' } }
         run_test!
         let(:user) { { name: 'email missing' } }
@@ -56,8 +55,8 @@ describe 'User API', type: :request do
       consumes 'application/json'
       tags 'Users'
       security [bearerAuth: ['users:owner']]
-      parameter name: :id, in: :path, type: :string
       description "Get User's info. Must have `users:owner` scope."
+      parameter name: :id, in: :path, type: :string
 
       response '200', 'success' do
         after do |example|
@@ -136,6 +135,45 @@ describe 'User API', type: :request do
         let(:user) { { name: 'liam b', email: 'product@weather-alert.com' } }
 
         run_test!
+      end
+    end
+  end
+
+  path '/users/{id}' do
+    delete 'Delete a User' do
+      consumes 'application/json'
+      tags 'Users'
+      security [bearerAuth: ['users:owner']]
+      description "Deletes a User. Must have `users:owner` scope."
+      parameter name: :id, in: :path, type: :string
+
+      response '200', 'success' do
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+
+        let(:id) { current_user.id }
+
+        run_test! do |_response|
+          expect { User.find(id) }.to raise_exception(ActiveRecord::RecordNotFound)
+        end
+      end
+
+      response '401', 'Invalid Token' do
+        after do |example|
+          example.metadata[:response][:content] ||= { 'application/json': { 'examples': {} } }
+          example.metadata[:response][:content][:'application/json'][:examples][self.class.description] =
+            { value: JSON.parse(response.body, symbolize_names: true) }
+        end
+        context 'invalid bearer provided' do
+          let(:id) { current_user.id }
+          let(:Authorization) { 'Bearer XXX' }
+          run_test!
+        end
       end
     end
   end
