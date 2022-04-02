@@ -15,7 +15,7 @@ class User < ApplicationRecord
 
   private
 
-  def downcase_attr
+  def downcase_attrs
     self.email = email.strip.downcase
     self.name = name.strip.downcase
   end
