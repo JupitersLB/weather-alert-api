@@ -1,0 +1,99 @@
+---
+openapi: 3.0.1
+info:
+  title: Weather Alert API
+  version: v1
+paths:
+  "/users":
+    post:
+      summary: Create a new user
+      tags:
+      - Users
+      description: Create a user. No token is necessary.
+      parameters: []
+      responses:
+        '200':
+          description: success
+        '400':
+          description: Incorrect data provided (not an email or missing parameters)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Liam
+                email:
+                  type: string
+                  example: liam@weather-alert.com
+              required:
+              - name,
+              - email
+  "/users/{id}":
+    get:
+      summary: Get User Info
+      tags:
+      - Users
+      security:
+      - bearerAuth:
+        - users:owner
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      description: Get User's info. Must have `users:owner` scope.
+      responses:
+        '200':
+          description: success
+        '403':
+          description: Incorrect user id provided
+        '401':
+          description: Invalid Token
+    put:
+      summary: Update User info
+      tags:
+      - Organizations
+      security:
+      - bearerAuth:
+        - users:owner
+      description: Update Users info. You must have an API token with the `users:owner`
+        scope in order to use this.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+        '403':
+          description: Access Denied
+        '401':
+          description: Invalid Token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Liam
+                email:
+                  type: string
+                  example: liam@weather-alert.com
+servers:
+- url: https://{defaultHost}
+  variables:
+    defaultHost:
+      default: www.example.com
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
