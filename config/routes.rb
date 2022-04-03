@@ -5,5 +5,6 @@ Rails.application.routes.draw do
 
   resources :users, only: %i[create show update destroy] do
     resources :tokens, only: %i[create update destroy]
+    post '/login', to: 'users#login', as: :user_login, on: :collection
   end
 end

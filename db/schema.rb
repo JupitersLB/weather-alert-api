@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_04_01_101026) do
+ActiveRecord::Schema.define(version: 2022_04_03_075712) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -32,6 +32,7 @@ ActiveRecord::Schema.define(version: 2022_04_01_101026) do
     t.string "email"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "firebase_user_id"
   end
 
   add_foreign_key "tokens", "users"
