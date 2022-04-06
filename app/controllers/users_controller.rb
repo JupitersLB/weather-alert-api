@@ -1,5 +1,4 @@
 class UsersController < ApplicationController
-
   def create
     if current_token.is_firebase_token?
       user = User.find_or_create_by(firebase_user_id: current_token.firebase_data['user_id']) do |created|

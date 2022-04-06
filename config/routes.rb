@@ -7,4 +7,6 @@ Rails.application.routes.draw do
     resources :tokens, only: %i[create update destroy]
     post '/login', to: 'users#login', as: :user_login, on: :collection
   end
+
+  get '/forecast', to: 'weathers#forecast', as: :forecast
 end
